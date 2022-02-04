@@ -12,44 +12,38 @@ char lexical_buffer[256];
 
 // Program internal state
 int
-    state = 0,                          // Current state in the automaton
-    transition_table[N_STATES][256],    // Table form of the automaton
-    lexical_position = 0,               // Track position in character buffer
-    x = 421, y = 298,                   // Set starting point at page center
-    dx = 0, dy = 0;                     // Horizontal/vertical shift values
-
+    state = 0,                       // Current state in the automaton
+    transition_table[N_STATES][256], // Table form of the automaton
+    lexical_position = 0,            // Track position in character buffer
+    x = 421, y = 298,                // Set starting point at page center
+    dx = 0, dy = 0;                  // Horizontal/vertical shift values
 
 /*
  * When a complete command has been scanned, this
  * function translates it into postscript
  */
-void interpret_lexical_buffer ( void );
-
+void interpret_lexical_buffer(void);
 
 /*
  * Prepare the table form of the automaton
  */
-void
-initialize_transition_table ( void )
+void initialize_transition_table(void)
 {
-    memset ( transition_table, 0, N_STATES*256*sizeof(int) );
-    for ( int s=0; s<N_STATES; s++ )
-        for ( int i=0; i<256; i++ )
+    memset(transition_table, 0, N_STATES * 256 * sizeof(int));
+    for (int s = 0; s < N_STATES; s++)
+        for (int i = 0; i < 256; i++)
             transition_table[s][i] = ERROR;
 
     /* TODO: fill out the transition table according to your solution */
 }
 
-
 /* Reset the automaton after completing a command */
-void
-reset ( void )
+void reset(void)
 {
     state = 0;
     lexical_position = 0;
-    memset ( lexical_buffer, 0, 256*sizeof(char) );
+    memset(lexical_buffer, 0, 256 * sizeof(char));
 }
-
 
 /*
  * Main function:
@@ -59,19 +53,18 @@ reset ( void )
  *  - Reset automaton
  *  - Repeat
  */
-int
-main ()
+int main()
 {
     // Prepare the table representation of the automaton
     initialize_transition_table();
 
     // Start drawing from the initial coordinates
-    printf ( "<< /PageSize [842 595] >> setpagedevice\n" );
-    printf ( "%d %d moveto\n", x, y );
+    printf("<< /PageSize [842 595] >> setpagedevice\n");
+    printf("%d %d moveto\n", x, y);
 
     // Read characters until end-of-file or failure
     int read = 0;
-    while ( read != EOF )
+    while (read != EOF)
     {
         // Fetch the next character and store it in the lexical buffer
         read = getchar();
@@ -84,41 +77,38 @@ main ()
         // Check for error or accepting states:
         //  * stop the program on error
         //  * interpret the contents of the lexical buffer when valid
-        switch (state) 
+        switch (state)
         {
-            case ERROR:
-                fprintf ( stderr, "Invalid input\n" );
-                exit ( EXIT_FAILURE );
-                break;
-            case ACCEPT:
-                interpret_lexical_buffer();
-                reset();
-                break;
+        case ERROR:
+            fprintf(stderr, "Invalid input\n");
+            exit(EXIT_FAILURE);
+            break;
+        case ACCEPT:
+            interpret_lexical_buffer();
+            reset();
+            break;
         }
     }
-    printf ( "stroke\n" );
-    printf ( "showpage\n" );
-    exit ( EXIT_SUCCESS );
+    printf("stroke\n");
+    printf("showpage\n");
+    exit(EXIT_SUCCESS);
 }
 
-
 /* This function interprets correct statements after they have been accepted */
-void
-interpret_lexical_buffer ( void )
+void interpret_lexical_buffer(void)
 {
-    if ( lexical_buffer[1] == 'x' )
-        sscanf ( &lexical_buffer[3], "%d", &dx );
-    else if ( lexical_buffer[1] == 'y' )
-        sscanf ( &lexical_buffer[3], "%d", &dy );
-    else if ( strncmp ( lexical_buffer, "go", 2 ) == 0 )
+    if (lexical_buffer[1] == 'x')
+        sscanf(&lexical_buffer[3], "%d", &dx);
+    else if (lexical_buffer[1] == 'y')
+        sscanf(&lexical_buffer[3], "%d", &dy);
+    else if (strncmp(lexical_buffer, "go", 2) == 0)
     {
         x = x + dx;
         y = y + dy;
-        printf ( "%d %d lineto\n", x, y );
-        printf ( "%d %d moveto\n", x, y );
+        printf("%d %d lineto\n", x, y);
+        printf("%d %d moveto\n", x, y);
     }
     else
-        fprintf ( stderr, "Unknown command accepted by the scanner:\n%s\n",
-            lexical_buffer
-        );
+        fprintf(stderr, "Unknown command accepted by the scanner:\n%s\n",
+                lexical_buffer);
 }
