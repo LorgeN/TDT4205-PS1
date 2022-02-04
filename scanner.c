@@ -4,8 +4,8 @@
 #include <stdlib.h>
 
 #define ERROR -1
-#define N_STATES 1
-#define ACCEPT 1
+#define N_STATES 10
+#define ACCEPT 9
 
 // Buffer for accepted characters, to interpret when in accepting state
 char lexical_buffer[256];
@@ -24,6 +24,14 @@ int
  */
 void interpret_lexical_buffer(void);
 
+void set_numbers_from_to(u_int8_t from, u_int8_t to)
+{
+    for (int ch = '0'; ch <= '9'; ch++)
+    {
+        transition_table[from][ch] = to;
+    }
+}
+
 /*
  * Prepare the table form of the automaton
  */
@@ -34,7 +42,22 @@ void initialize_transition_table(void)
         for (int i = 0; i < 256; i++)
             transition_table[s][i] = ERROR;
 
-    /* TODO: fill out the transition table according to your solution */
+    transition_table[0]['g'] = 1;
+    transition_table[1]['o'] = 2;
+    transition_table[2]['\n'] = 9;
+
+    transition_table[0]['d'] = 3;
+    transition_table[3]['x'] = 4;
+    transition_table[3]['y'] = 5;
+    transition_table[4]['='] = 6;
+    transition_table[5]['='] = 6;
+    transition_table[6]['-'] = 7;
+
+    set_numbers_from_to(6, 8);
+    set_numbers_from_to(7, 8);
+    set_numbers_from_to(8, 8);
+
+    transition_table[8]['\n'] = 9;
 }
 
 /* Reset the automaton after completing a command */
